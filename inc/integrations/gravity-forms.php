@@ -20,9 +20,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 /**
  * Instantiate the class
  */
-if ( class_exists( '\GFAPI' ) ) {
-    new GravityForms();
-}
+new GravityForms();
 
 
 /**
@@ -50,6 +48,19 @@ class GravityForms {
      * Constructor
      */
     public function __construct() {
+
+        // Stop if we're in the network admin
+        if ( is_network_admin() ) {
+            return;
+        }
+
+        // Stop if Gravity Forms is not active
+        if ( !function_exists( 'is_plugin_active' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+        if ( !is_plugin_active( 'gravityforms/gravityforms.php' ) ) {
+            return;
+        }
 
         // Instantiate flags
         $this->FLAGS = new Flags();

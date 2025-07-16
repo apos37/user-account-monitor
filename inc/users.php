@@ -75,14 +75,18 @@ class Users {
 
         // Filter
         add_action( 'manage_users_extra_tablenav', [ $this, 'add_user_filter_dropdown' ], 9999999 );
+        add_action( 'manage_users_network_extra_tablenav', [ $this, 'add_user_filter_dropdown' ], 9999999 );
         add_action( 'pre_get_users', [ $this, 'filter_users_list_query' ] );
 
         // Add a row action
         add_filter( 'user_row_actions', [ $this, 'add_clear_action_link' ], 10, 2 );
+        add_filter( 'ms_user_row_actions', [ $this, 'add_clear_action_link' ], 10, 2 );
 
         // User column
         add_filter( 'manage_users_columns', [ $this, 'user_column' ] );
+        add_filter( 'manage_users-network_columns', [ $this, 'user_column' ] );
         add_action( 'admin_head-users.php', [ $this, 'user_column_style' ] );
+        add_action( 'admin_head-users-network.php', [ $this, 'user_column_style' ] );
         add_action( 'manage_users_custom_column', [ $this, 'user_column_content' ], 10, 3 );
 
         // Scripts

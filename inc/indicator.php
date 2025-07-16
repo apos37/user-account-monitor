@@ -63,6 +63,8 @@ class Indicator {
         add_action( 'update_user_meta', [ $this, 'maybe_invalidate_cache' ], 10, 3 );
         add_action( 'added_user_meta',  [ $this, 'maybe_invalidate_cache' ], 10, 3 );
         add_action( 'deleted_user_meta', [ $this, 'maybe_invalidate_cache' ], 10, 3 );
+        add_action( 'delete_user', [ $this, 'invalidate_cache' ] );
+        add_action( 'remove_user_from_blog', [ $this, 'invalidate_cache' ] );
         
         // Hook into admin_menu to modify the Users menu label.
         add_action( 'admin_menu', [ $this, 'add_suspicious_count_to_users_menu' ], 999 );
@@ -129,9 +131,19 @@ class Indicator {
      */
     public function maybe_invalidate_cache( $meta_id, $user_id, $meta_key ) {
         if ( $meta_key === $this->meta_key_suspicious ) {
-            delete_transient( $this->transient_key );
+            $this->invalidate_cache();
         }
     } // End maybe_invalidate_cache()
+
+
+    /**
+     * Invalidate the flagged user count cache when a user is deleted.
+     *
+     * @return void
+     */
+    public function invalidate_cache() {
+        delete_transient( $this->transient_key );
+    } // End invalidate_cache()
 
 
     /**

@@ -66,11 +66,11 @@ jQuery( $ => {
         // console.log( `Scanning user (${userID})...` );
 
         // Add scanning class
-        var userRow = $( `#user-${userID}` );
+        var userRow = $( `input[type="checkbox"][value="${userID}"]` ).closest( 'tr' );
         userRow.addClass( 'scanning' );
 
         // Say it in the table cell
-        var suspicious = $( `#user-${userID} .column-suspicious` );
+        var suspicious = userRow.find( '.column-suspicious' );
         suspicious.html( `<em>${uamonitor_users.text.scanning}</em>` );
 
         // Run the scan
@@ -113,7 +113,7 @@ jQuery( $ => {
                 const userRow = $( row );
                 var tableCell = userRow.find( '.column-suspicious' );
 
-                const userID = userRow.attr( 'id' )?.replace( 'user-', '' );
+                const userID = userRow.find( 'th.check-column input[type="checkbox"]' ).val();
                 if ( userID ) {
 
                     // Skip if already cleared
@@ -182,7 +182,7 @@ jQuery( $ => {
         const userID   = link.data( 'userid' );
         const method   = link.data( 'method' );
         const nonce    = uamonitor_users.nonce_clear;
-        const userRow  = $( `#user-${userID}` );
+        const userRow = $( `input[type="checkbox"][value="${userID}"]` ).closest( 'tr' );
         const tableCell = userRow.find( '.column-suspicious' );
 
         $.post( uamonitor_users.ajaxurl, {

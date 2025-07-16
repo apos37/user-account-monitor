@@ -29,15 +29,7 @@ add_action( 'init', function() {
  * The class
  */
 class Settings {
-
-    /**
-     * Nonce
-     *
-     * @var string
-     */
-    private $nonce = 'uamonitor_nonce';
-    
-
+   
     /**
      * Load on init
      */
@@ -45,12 +37,12 @@ class Settings {
         
 		// Submenu
         add_action( 'admin_menu', [ $this, 'submenu' ] );
+        if ( is_multisite() ) {
+            add_action( 'network_admin_menu', [ $this, 'submenu_network' ] );
+        }
 
 		// Settings fields
         add_action( 'admin_init', [  $this, 'settings_fields' ] );
-
-        // JQuery and CSS
-        // add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 
     } // End init()
 
@@ -70,6 +62,40 @@ class Settings {
             [ $this, 'page' ]
         );
     } // End submenu()
+
+
+    /**
+     * Submenu for network admin.
+     *
+     * @return void
+     */
+    public function submenu_network() {
+        $page = is_network_admin() ? [ $this, 'redirect_to_main_site_settings' ] : [ $this, 'page' ];
+        add_submenu_page(
+            'users.php', // still 'users.php' in network admin
+            UAMONITOR_NAME . ' — ' . __( 'Settings', 'user-account-monitor' ),
+            __( 'Account Monitor', 'user-account-monitor' ),
+            'manage_options',
+            UAMONITOR__TEXTDOMAIN,
+            $page
+        );
+    } // End submenu_network()
+
+
+    /**
+     * Redirect to main site settings if in network admin.
+     *
+     * This is to ensure that the settings page is only accessible from the main site in a multisite setup.
+     */
+    public function redirect_to_main_site_settings() {
+        if ( is_multisite() && is_network_admin() ) {
+            $url = add_query_arg( [
+                'page' => UAMONITOR__TEXTDOMAIN
+            ], get_admin_url( get_main_site_id(), 'users.php' ) );
+            wp_redirect( $url );
+            exit;
+        }
+    } // End redirect_to_main_site_settings()
 
     
     /**

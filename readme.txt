@@ -4,7 +4,7 @@ Tags: spam, user registration, fake users, bot detection, account flagging
 Requires at least: 5.9
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: Proprietary
 License URI: https://pluginrx.com/proprietary-license-agreement/
 
@@ -59,5 +59,8 @@ We recommend using our [website support forum](https://pluginrx.com/support/plug
 3. Admin dashboard widget showing flagged user count.
 
 == Changelog ==
+= 1.0.2 =
+* Added support for multisite networks
+
 = 1.0.1 =
 * Initial release
