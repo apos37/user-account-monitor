@@ -87,18 +87,25 @@ class Flags {
         $allow_two       = !empty( $short_name_args[ 'allow_two' ] );
 
         if ( ( !$allow_single && $cap == 1 ) || ( !$allow_single && $allow_two && $cap == 2 ) ) {
+            // translators: Description for rule that flags names that are only 1 character
             $short_names_description = __( 'Flags if the first or last name is only 1 character.', 'user-account-monitor' );
         } elseif ( !$allow_single && !$allow_two && $cap == 2 ) {
+            // translators: Description for rule that flags names that are 1 or 2 characters
             $short_names_description = __( 'Flags if the first or last name is only 1 or 2 characters.', 'user-account-monitor' );
         } elseif ( $allow_single && !$allow_two && $cap == 2 ) {
+            // translators: Description for rule that flags names that are exactly 2 characters
             $short_names_description = __( 'Flags if the first or last name is exactly 2 characters.', 'user-account-monitor' );
         } elseif ( $allow_single && !$allow_two && $cap > 2 ) {
+            // translators: %d is the maximum character length that still triggers a flag (e.g., "3", meaning 2 or 3 characters trigger the flag)
             $short_names_description = sprintf( __( 'Flags if the first or last name is fewer than or equal to %d characters, but more than 1 character.', 'user-account-monitor' ), $cap );
         } elseif ( $allow_single && $allow_two && $cap > 2 ) {
+            // translators: %d is the maximum character length that still triggers a flag (e.g., "4", meaning 3 or 4 characters trigger the flag)
             $short_names_description = sprintf( __( 'Flags if the first or last name is fewer than or equal to %d characters, but more than 2 characters.', 'user-account-monitor' ), $cap );
         } elseif ( !$allow_single && !$allow_two && $cap > 2 ) {
+            // translators: %d is the maximum character length that triggers a flag (e.g., "3", meaning 1–3 characters trigger the flag)
             $short_names_description = sprintf( __( 'Flags if the first or last name is fewer than or equal to %d characters.', 'user-account-monitor' ), $cap );
         } else {
+            // translators: Generic fallback description when none of the specific rules match
             $short_names_description = __( 'Flags very short first or last names.', 'user-account-monitor' );
         }
 
