@@ -7,8 +7,8 @@
 /**
  * Define Namespaces
  */
-namespace PluginRx\UserAccountMonitor;
-use PluginRx\UserAccountMonitor\Flags;
+namespace Apos37\UserAccountMonitor;
+use Apos37\UserAccountMonitor\Flags;
 
 
 /**

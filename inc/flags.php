@@ -7,7 +7,7 @@
 /**
  * Define Namespaces
  */
-namespace PluginRx\UserAccountMonitor;
+namespace Apos37\UserAccountMonitor;
 
 
 /**
@@ -40,6 +40,18 @@ class Flags {
 
 
     /**
+     * Very short name arguments
+     *
+     * @var array
+     */
+    public $very_short_name_args = [
+        'cap'          => 2,
+        'allow_single' => true,
+        'allow_two'    => false,
+    ];
+
+
+    /**
      * Constructor
      */
     public function __construct() {
@@ -68,6 +80,29 @@ class Flags {
      * @return array
      */
     public function options( $return_keys_only = false, $return_option = false ) {
+        // Short names description
+        $short_name_args = apply_filters( 'uamonitor_short_name_length', $this->very_short_name_args );
+        $cap             = absint( $short_name_args[ 'cap' ] );
+        $allow_single    = !empty( $short_name_args[ 'allow_single' ] );
+        $allow_two       = !empty( $short_name_args[ 'allow_two' ] );
+
+        if ( ( !$allow_single && $cap == 1 ) || ( !$allow_single && $allow_two && $cap == 2 ) ) {
+            $short_names_description = __( 'Flags if the first or last name is only 1 character.', 'user-account-monitor' );
+        } elseif ( !$allow_single && !$allow_two && $cap == 2 ) {
+            $short_names_description = __( 'Flags if the first or last name is only 1 or 2 characters.', 'user-account-monitor' );
+        } elseif ( $allow_single && !$allow_two && $cap == 2 ) {
+            $short_names_description = __( 'Flags if the first or last name is exactly 2 characters.', 'user-account-monitor' );
+        } elseif ( $allow_single && !$allow_two && $cap > 2 ) {
+            $short_names_description = sprintf( __( 'Flags if the first or last name is fewer than or equal to %d characters, but more than 1 character.', 'user-account-monitor' ), $cap );
+        } elseif ( $allow_single && $allow_two && $cap > 2 ) {
+            $short_names_description = sprintf( __( 'Flags if the first or last name is fewer than or equal to %d characters, but more than 2 characters.', 'user-account-monitor' ), $cap );
+        } elseif ( !$allow_single && !$allow_two && $cap > 2 ) {
+            $short_names_description = sprintf( __( 'Flags if the first or last name is fewer than or equal to %d characters.', 'user-account-monitor' ), $cap );
+        } else {
+            $short_names_description = __( 'Flags very short first or last names.', 'user-account-monitor' );
+        }
+
+        // Options array
         $options = [
             [
                 'key'        => 'admin_flag',
@@ -81,7 +116,7 @@ class Flags {
             [
                 'key'        => 'excessive_uppercase',
                 'title'      => __( 'Excessive Uppercase Letters', 'user-account-monitor' ),
-                'comments'   => __( 'Flags if there are more than 5 uppercase letters in a name.', 'user-account-monitor' ),
+                'comments'   => __( 'Flags if there are more than 5 uppercase letters in a first or last name, only if the name is not in all caps.', 'user-account-monitor' ),
                 'field_type' => 'checkbox',
                 'sanitize'   => 'sanitize_checkbox',
                 'section'    => 'checks',
@@ -135,7 +170,7 @@ class Flags {
             [
                 'key'        => 'short_names',
                 'title'      => __( 'Very Short Names', 'user-account-monitor' ),
-                'comments'   => __( 'Flags if the first or last name is shorter than 3 characters.', 'user-account-monitor' ),
+                'comments'   => $short_names_description,
                 'field_type' => 'checkbox',
                 'sanitize'   => 'sanitize_checkbox',
                 'section'    => 'checks',
@@ -180,7 +215,7 @@ class Flags {
         ];
 
         // Allow developers to add custom options
-        $options = apply_filters( 'uamonitor_custom_settings', $options );
+        $options = apply_filters( 'uamonitor_flag_settings', $options );
         
         // Filter out other options if we only want one in particular
         if ( $return_option ) {
@@ -214,6 +249,9 @@ class Flags {
             $names[] = $user_or_name;
         } elseif ( is_object( $user_or_name ) ) {
             foreach ( $this->names_to_scan as $field ) {
+                if ( $field == 'display_name' ) {
+                    continue; // Skip display_name for excessive uppercase check
+                }
                 $names[] = $user_or_name->$field ?? '';
             }
         }
@@ -414,6 +452,10 @@ class Flags {
             return false;
         }
 
+        if ( strlen( $first ) === 1 || strlen( $last ) === 1 ) {
+            return false;
+        }
+
         if ( $first === $last ) {
             return true;
         }
@@ -442,8 +484,46 @@ class Flags {
             }
         }
 
+        $rules        = apply_filters( 'uamonitor_short_name_length', $this->very_short_name_args );
+        $cap          = absint( $rules[ 'cap' ] );
+        $allow_single = !empty( $rules[ 'allow_single' ] );
+        $allow_two    = !empty( $rules[ 'allow_two' ] );
+
         foreach ( $names as $name ) {
-            if ( $name && strlen( $name ) < 3 ) {
+            $length = strlen( $name );
+
+            // Case: Flags 1-character names if single not allowed and cap is 1
+            if ( !$allow_single && $cap == 1 && $length === 1 ) {
+                return true;
+            }
+
+            // Case: Flags 1-character names if single not allowed, two allowed, and cap is 2
+            if ( !$allow_single && $allow_two && $cap == 2 && $length === 1 ) {
+                return true;
+            }
+
+            // Case: Flags 1- or 2-character names if both single and two are not allowed and cap is 2
+            if ( !$allow_single && !$allow_two && $cap == 2 && ( $length === 1 || $length === 2 ) ) {
+                return true;
+            }
+
+            // Case: Flags exactly 2-character names if single allowed, two not allowed, and cap is 2
+            if ( $allow_single && !$allow_two && $cap == 2 && $length === 2 ) {
+                return true;
+            }
+
+            // Case: Flags 2-character+ names up to cap if single allowed, two not allowed, and cap > 2
+            if ( $allow_single && !$allow_two && $cap > 2 && $length > 1 && $length <= $cap ) {
+                return true;
+            }
+
+            // Case: Flags 3-character+ names up to cap if single and two are allowed, and cap > 2
+            if ( $allow_single && $allow_two && $cap > 2 && $length > 2 && $length <= $cap ) {
+                return true;
+            }
+
+            // Case: Flags all names up to cap if neither single nor two allowed, and cap > 2
+            if ( !$allow_single && !$allow_two && $cap > 2 && $length <= $cap ) {
                 return true;
             }
         }

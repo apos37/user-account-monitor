@@ -7,8 +7,8 @@
 /**
  * Define Namespaces
  */
-namespace PluginRx\UserAccountMonitor;
-use PluginRx\UserAccountMonitor\Flags;
+namespace Apos37\UserAccountMonitor;
+use Apos37\UserAccountMonitor\Flags;
 
 
 /**
@@ -170,7 +170,7 @@ class IndividualUser {
                 continue;
             }
 
-            $custom_check_callback = apply_filters( 'uamonitor_custom_check_callback', null, $key );
+            $custom_check_callback = apply_filters( 'uamonitor_custom_flag_callback', null, $key );
             if ( is_callable( $custom_check_callback ) && call_user_func( $custom_check_callback, $user, $key ) ) {
                 $user_flags[] = $key;
             }

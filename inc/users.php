@@ -7,9 +7,9 @@
 /**
  * Define Namespaces
  */
-namespace PluginRx\UserAccountMonitor;
-use PluginRx\UserAccountMonitor\IndividualUser;
-use PluginRx\UserAccountMonitor\Indicator;
+namespace Apos37\UserAccountMonitor;
+use Apos37\UserAccountMonitor\IndividualUser;
+use Apos37\UserAccountMonitor\Indicator;
 
 
 /**
@@ -107,13 +107,14 @@ class Users {
             return;
         }
 
-        $value = isset( $_GET[ $this->meta_key_suspicious ] ) ? sanitize_text_field( wp_unslash( $_GET[ $this->meta_key_suspicious ] ) ) : '';
+        $value = ( isset( $_GET['uamonitor_filter_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['uamonitor_filter_nonce'] ) ), $this->nonce_filter ) ) ? ( isset( $_GET[ $this->meta_key_suspicious ] ) ? sanitize_text_field( wp_unslash( $_GET[ $this->meta_key_suspicious ] ) ) : '' ) : '';
+
         $nonce = wp_create_nonce( $this->nonce_filter );
 
         printf(
             '<div class="alignleft actions">
                 <label class="screen-reader-text" for="uamonitor_suspicious">%s</label>
-                <select name="' . $this->meta_key_suspicious . '" id="uamonitor_suspicious">
+                <select name="%s" id="uamonitor_suspicious">
                     <option value="">%s</option>
                     <option value="not_checked"%s>%s</option>
                     <option value="cleared"%s>%s</option>
@@ -123,6 +124,7 @@ class Users {
                 <input type="submit" class="button" value="%s" />
             </div>',
             esc_html__( 'Filter by Status', 'user-account-monitor' ),
+            esc_attr( $this->meta_key_suspicious ),
             esc_html__( 'All Users', 'user-account-monitor' ),
             selected( $value, 'not_checked', false ),
             esc_html__( 'Not Checked', 'user-account-monitor' ),

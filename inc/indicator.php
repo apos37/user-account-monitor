@@ -7,7 +7,7 @@
 /**
  * Define Namespaces
  */
-namespace PluginRx\UserAccountMonitor;
+namespace Apos37\UserAccountMonitor;
 
 
 
@@ -94,7 +94,7 @@ class Indicator {
         }
 
         $args = [
-            'meta_query' => [
+            'meta_query' => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 'relation' => 'AND',
                 [
                     'key'     => 'suspicious',
@@ -181,7 +181,12 @@ class Indicator {
             return;
         }
 
-        $filter = isset( $_GET[ $this->meta_key_suspicious ] ) ? sanitize_text_field( wp_unslash( $_GET[ $this->meta_key_suspicious ] ) ) : '';
+        if ( !isset( $_GET[ 'uamonitor_filter_nonce' ] ) || !wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET[ 'uamonitor_filter_nonce' ] ) ), $this->nonce_filter ) ) {
+            $filter = '';
+        } else {
+            $filter = isset( $_GET[ $this->meta_key_suspicious ] ) ? sanitize_text_field( wp_unslash( $_GET[ $this->meta_key_suspicious ] ) ) : '';
+        }
+
         if ( $filter === 'flagged' ) {
             return;
         }
@@ -193,17 +198,20 @@ class Indicator {
 
         $url = add_query_arg( [
             $this->meta_key_suspicious => 'flagged',
-            'uamonitor_filter_nonce' => wp_create_nonce( $this->nonce_filter ),
+            'uamonitor_filter_nonce'   => wp_create_nonce( $this->nonce_filter ),
         ], admin_url( 'users.php' ) );
+
+        $flagged_text = sprintf(
+            /* translators: %d is the number of flagged user accounts */
+            __( 'There are currently <strong><span id="uamonitor-flagged-count">%d</span></strong> flagged user account(s).', 'user-account-monitor' ),
+            $count
+        );
 
         printf(
             '<div class="notice notice-error is-dismissible uamonitor-flagged-notice">
                 <p>%s <a href="%s">%s</a></p>
             </div>',
-            sprintf(
-                wp_kses_post( __( 'There are currently <strong><span id="uamonitor-flagged-count">%d</span></strong> flagged user account(s).', 'user-account-monitor' ) ),
-                $count
-            ),
+            wp_kses_post( $flagged_text ),
             esc_url( $url ),
             esc_html__( 'View flagged users', 'user-account-monitor' )
         );

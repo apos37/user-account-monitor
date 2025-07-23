@@ -3,7 +3,7 @@
  * Plugin Name:         User Account Monitor
  * Plugin URI:          https://pluginrx.com/plugin/user-account-monitor/
  * Description:         Detect and flag fake user accounts based on suspicious input patterns. Optionally auto-delete flagged users.
- * Version:             1.0.2
+ * Version:             1.0.3
  * Requires at least:   5.9
  * Tested up to:        6.8
  * Requires PHP:        7.4
@@ -11,17 +11,16 @@
  * Author URI:          https://pluginrx.com/
  * Discord URI:         https://discord.gg/3HnzNEJVnR
  * Text Domain:         user-account-monitor
- * License:             Proprietary
- * License URI:         https://pluginrx.com/proprietary-license-agreement/
+ * License:             GPLv2 or later
+ * License URI:         http://www.gnu.org/licenses/gpl-2.0.txt
  * Created on:          June 3, 2025
- * Premium:             true
  */
 
 
 /**
  * Define Namespace
  */
-namespace PluginRx\UserAccountMonitor;
+namespace Apos37\UserAccountMonitor;
 
 
 /**
@@ -64,7 +63,7 @@ define( 'UAMONITOR_DISCORD_URL', $plugin_data[ 'discord_uri' ] );
 // Paths
 define( 'UAMONITOR_BASENAME', plugin_basename( __FILE__ ) );                                                //: text-domain/text-domain.php
 define( 'UAMONITOR_ABSPATH', plugin_dir_path( __FILE__ ) );                                                 //: /home/.../public_html/wp-content/plugins/text-domain/
-define( 'UAMONITOR_DIR', plugins_url( '/' . UAMONITOR_TEXTDOMAIN . '/' ) );                                 //: https://domain.com/wp-content/plugins/text-domain/
+define( 'UAMONITOR_DIR', plugin_dir_url( __FILE__ ) );                                                      //: https://domain.com/wp-content/plugins/text-domain/
 define( 'UAMONITOR_INCLUDES_ABSPATH', UAMONITOR_ABSPATH . 'inc/' );                                         //: /home/.../public_html/wp-content/plugins/text-domain/inc/
 define( 'UAMONITOR_INCLUDES_DIR', UAMONITOR_DIR . 'inc/' );                                                 //: https://domain.com/wp-content/plugins/text-domain/inc/
 define( 'UAMONITOR_JS_PATH', UAMONITOR_INCLUDES_DIR . 'js/' );                                              //: https://domain.com/wp-content/plugins/text-domain/inc/js/

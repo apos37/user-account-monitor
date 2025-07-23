@@ -4,11 +4,11 @@ Tags: spam, user registration, fake users, bot detection, account flagging
 Requires at least: 5.9
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.2
-License: Proprietary
-License URI: https://pluginrx.com/proprietary-license-agreement/
+Stable tag: 1.0.3
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.txt
 
-Detects suspicious or fake user registrations based on name patterns, gibberish detection, and other simple checks. Flags questionable accounts for admin review or deletion.
+Detect and flag suspicious user registrations using simple checks to protect your site from fake accounts and bots.
 
 == Description ==
 
@@ -20,15 +20,25 @@ Detects suspicious or fake user registrations based on name patterns, gibberish 
 - **Symbol and Number Filters:** Detects unnatural use of digits or special characters in names.
 - **Customizable Detection Rules:** Enable or disable individual checks to suit your site's user base.
 - **Flag for Review:** Suspicious accounts are flagged and marked for potential deletion.
-- **Admin Dashboard Notice:** Quickly see how many flagged users exist from your dashboard.
+- **Admin Notice:** Quickly see how many flagged users exist from your admin area.
+- **Scan Existing Users:** Scan the users admin list table for suspicious accounts so you can easily delete them.
+- **Gravity Forms Integration:** If using Gravity Forms User Registration, the plugin optionally runs validation checks on registrations submitted via forms.
 - **Developer Hooks:** Add or customize detection logic with your own functions.
 
 **Detection Checks Include:**
 
-- Excessive uppercase letters
-- No vowels in names longer than 3 characters
-- Five or more consonants in a row
-- Use of numbers or special characters in names
+- Manually flagged by admin
+- Excessive uppercase letters (more than 5 in a name unless all caps)
+- No vowels in names longer than 5 characters
+- Six or more consecutive consonants in a name
+- Presence of numbers in names
+- Presence of special characters other than letters, numbers, and dashes
+- Similarity between first and last name (exact match or one includes the other)
+- Very short names (2 characters)
+- Invalid or disposable email domains
+- Excessive periods in email address (more than 3)
+- Username containing URL patterns (`http`, `https`, or `www`)
+- Known spam words in user bio or name
 
 This plugin is ideal for membership sites, forums, or any WordPress site that allows user registration and needs protection against fake or low-quality signups.
 
@@ -36,7 +46,7 @@ This plugin is ideal for membership sites, forums, or any WordPress site that al
 
 1. Upload the plugin files to the `/wp-content/plugins/user-account-monitor/` directory.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
-3. Configure detection settings in the plugin's admin settings page.
+3. Configure detection settings in the plugin's admin settings page under **Users > Acount Monitor**.
 4. Monitor flagged accounts from the WordPress Users screen.
 
 == Frequently Asked Questions ==
@@ -53,14 +63,12 @@ Yes. The plugin settings let you turn on or off individual detection checks such
 = Where can I request features and get support? =
 We recommend using our [website support forum](https://pluginrx.com/support/plugin/user-account-monitor/) as the primary method for requesting features and getting help. You can also reach out via our [Discord support server](https://discord.gg/3HnzNEJVnR) or the [WordPress.org support forum](https://wordpress.org/support/plugin/user-account-monitor/), but please note that WordPress.org doesn’t always notify us of new posts, so it’s not ideal for time-sensitive issues.
 
-== Screenshots ==
-1. Plugin settings page with heuristic toggles.
-2. Flagged users list in the WordPress Users screen.
-3. Admin dashboard widget showing flagged user count.
-
 == Changelog ==
+= 1.0.3 =
+* Update: Added more support for hooks
+
 = 1.0.2 =
-* Added support for multisite networks
+* Update: Added support for multisite networks
 
 = 1.0.1 =
 * Initial release
