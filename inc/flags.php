@@ -341,7 +341,7 @@ class Flags {
                 continue;
             }
 
-            $pattern = apply_filters( 'uamonitor_consonant_cluster_pattern', '/[bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]{6,}/', $field, $user_or_name );
+            $pattern = apply_filters( 'uamonitor_consonant_cluster_pattern', '/[bcdfghjklmnpqrstvwxzBCDFGHJKLMNPQRSTVWXZ]{6,}/', $field, $user_or_name );
 
             if ( preg_match( $pattern, $name ) ) {
                 return true;
