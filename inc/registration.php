@@ -46,7 +46,7 @@ class Registration {
      * @return void
      */
     public function check_new_user( $user_id ) {
-        (new IndividualUser())->check( $user_id );
+        (new IndividualUser())->check( $user_id, false, false, false );
     } // End check_new_user()
 
 }

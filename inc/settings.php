@@ -112,8 +112,12 @@ class Settings {
 		<div class="wrap">
 			<h1><?php echo esc_attr( get_admin_page_title() ) ?></h1>
 
+            <a href="/wp-admin/users.php?page=user_account_monitor_scan" id="uamonitor-run-scan" class="button button-primary" style="margin-top: 1rem;">
+                <?php esc_html_e( 'Run Quick Scan Now', 'user-account-monitor' ); ?>
+            </a>
+
             <!-- Settings Form -->
-            <br><br>
+            <br><br><br><br>
 			<form method="post" action="options.php">
 				<?php
 					settings_fields( UAMONITOR_TEXTDOMAIN );
@@ -436,25 +440,5 @@ class Settings {
         }
         return $html;
     } // End render_select_options()
-
-
-    /**
-     * Enqueue javascript
-     *
-     * @return void
-     */
-    public function enqueue_scripts( $hook ) {
-		// JavaScript
-        wp_register_script( UAMONITOR_TEXTDOMAIN, UAMONITOR_JS_PATH . 'back-notice.js', [ 'jquery' ], UAMONITOR_VERSION, true );
-		wp_enqueue_script( UAMONITOR_TEXTDOMAIN );
-
-        // Check if we are on the correct admin page
-        if ( $hook !== 'appearance_page_'.UAMONITOR_TEXTDOMAIN ) {
-            return;
-        }
-
-		// CSS
-		wp_enqueue_style( UAMONITOR_TEXTDOMAIN . '-styles', UAMONITOR_CSS_PATH . 'settings.css', [], UAMONITOR_VERSION );
-    } // End enqueue_scripts()
 
 }

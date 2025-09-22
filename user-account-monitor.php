@@ -3,10 +3,10 @@
  * Plugin Name:         User Account Monitor
  * Plugin URI:          https://pluginrx.com/plugin/user-account-monitor/
  * Description:         Detect and flag fake user accounts based on suspicious input patterns.
- * Version:             1.0.4
+ * Version:             1.0.5
  * Requires at least:   5.9
  * Tested up to:        6.8
- * Requires PHP:        7.4
+ * Requires PHP:        8.0
  * Author:              PluginRx
  * Author URI:          https://pluginrx.com/
  * Discord URI:         https://discord.gg/3HnzNEJVnR
@@ -72,6 +72,7 @@ define( 'UAMONITOR_SETTINGS_PATH', admin_url( 'edit.php?post_type=uamonitor-file
 
 // Screen IDs
 define( 'UAMONITOR_SETTINGS_SCREEN_ID', 'users_page_' . UAMONITOR__TEXTDOMAIN );
+define( 'UAMONITOR_SCAN_SCREEN_ID', 'users_page_' . UAMONITOR__TEXTDOMAIN . '_scan' );
 
 
 /**
@@ -80,6 +81,7 @@ define( 'UAMONITOR_SETTINGS_SCREEN_ID', 'users_page_' . UAMONITOR__TEXTDOMAIN );
 require_once UAMONITOR_INCLUDES_ABSPATH . 'common.php';
 require_once UAMONITOR_INCLUDES_ABSPATH . 'user.php';
 require_once UAMONITOR_INCLUDES_ABSPATH . 'users.php';
+require_once UAMONITOR_INCLUDES_ABSPATH . 'quick-scan.php';
 require_once UAMONITOR_INCLUDES_ABSPATH . 'flags.php';
 require_once UAMONITOR_INCLUDES_ABSPATH . 'indicator.php';
 require_once UAMONITOR_INCLUDES_ABSPATH . 'registration.php';

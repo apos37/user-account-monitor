@@ -93,7 +93,7 @@ class IndividualUser {
      * @param int $user_id
      * @return array|false
      */
-    public function check( $user_id, $only_check_existing = false, $force_recheck = false ) {
+    public function check( $user_id, $only_check_existing = false, $force_recheck = false, $update_user = true ) {
         // If they are already cleared
         $suspicious = get_user_meta( $user_id, $this->meta_key_suspicious, true );
         $recheck = $force_recheck || get_option( 'uamonitor_recheck_cleared' );
@@ -137,13 +137,17 @@ class IndividualUser {
 
         // If we have flags
         if ( !empty( $user_flags ) ) {
-            update_user_meta( $user_id, $this->meta_key_suspicious, $user_flags );
+            if ( $update_user ) {
+                update_user_meta( $user_id, $this->meta_key_suspicious, $user_flags );
+            }
             $this->log_flags( $user, $user_flags );
             $this->auto_delete( $user, $user_flags );
             do_action( 'uamonitor_check_after_flagged', $user, $user_flags );
             return $user_flags;
         } else {
-            update_user_meta( $user_id, $this->meta_key_suspicious, 'cleared' );
+            if ( $update_user ) {
+                update_user_meta( $user_id, $this->meta_key_suspicious, 'cleared' );
+            }
         }
 
         do_action( 'uamonitor_check_after_cleared', $user, $user_flags );

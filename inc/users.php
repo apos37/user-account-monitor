@@ -10,6 +10,7 @@
 namespace Apos37\UserAccountMonitor;
 use Apos37\UserAccountMonitor\IndividualUser;
 use Apos37\UserAccountMonitor\Indicator;
+use Apos37\UserAccountMonitor\Flags;
 
 
 /**
@@ -237,33 +238,6 @@ class Users {
 
 
     /**
-     * Add a run scan button to the top of all post types
-     *
-     * @return void
-     */
-    public function run_scan_button() {
-        $nonce = wp_create_nonce( $this->nonce_scan );
-        ?>
-        <script>
-            jQuery( $ => { 
-                const currentURL = window.location.href;
-                var btnURL;
-                var btnText;
-                if ( currentURL.includes( 'blinks=true' ) && currentURL.includes( '_wpnonce=<?php echo esc_html( $nonce ); ?>' ) ) {
-                    btnURL = '<?php echo esc_url( remove_query_arg( [ 'blinks', '_wpnonce' ] ) ); ?>';
-                    btnText = 'Stop Scanning';
-                } else {
-                    btnURL = '<?php echo esc_url( add_query_arg( [ 'blinks' => 'true', '_wpnonce' => $nonce ] ) ); ?>';
-                    btnText = 'Scan for Broken Links';
-                }
-                $( '.wrap > a.page-title-action' ).after( `<a id="bln-run-scan" href="${btnURL}" class="page-title-action" style="margin-left: 10px;"><span class="text">${btnText}</span><span class="done"></span></a>` );
-            } )
-        </script>
-        <?php
-    } // End run_scan_button()
-
-
-    /**
      * Add the user column
      *
      * @param array $columns
@@ -342,7 +316,7 @@ class Users {
             'recheck_cleared' => filter_var( get_option( 'uamonitor_recheck_cleared', false ), FILTER_VALIDATE_BOOLEAN ),
             'already_flagged' => (new Indicator())->count_flagged_users(),
             'text'            => [
-                'start'      => __( 'Scan for Suspicious Accounts', 'user-account-monitor' ),
+                'start'      => __( 'Scan This Page for Suspicious Accounts', 'user-account-monitor' ),
                 'stop'       => __( 'Stop Scanning', 'user-account-monitor' ),
                 'scanning'   => __( 'Scanning', 'user-account-monitor' ),
                 'cleared'    => __( 'Cleared', 'user-account-monitor' ),

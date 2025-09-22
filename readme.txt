@@ -64,6 +64,9 @@ Yes. The plugin settings let you turn on or off individual detection checks such
 We recommend using our [website support forum](https://pluginrx.com/support/plugin/user-account-monitor/) as the primary method for requesting features and getting help. You can also reach out via our [Discord support server](https://discord.gg/3HnzNEJVnR) or the [WordPress.org support forum](https://wordpress.org/support/plugin/user-account-monitor/), but please note that WordPress.org doesn’t always notify us of new posts, so it’s not ideal for time-sensitive issues.
 
 == Changelog ==
+= 1.0.5 =
+* Update: No longer automatically clearing users upon registration just in case it gets passed registration.
+
 = 1.0.4 =
 * Tweak: Changed the letter "y" to a vowel in the constant consonant flag for names like "Krystle"
 
