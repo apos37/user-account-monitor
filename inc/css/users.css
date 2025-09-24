@@ -57,3 +57,6 @@
     display: none;
     transition: all 1s;
 }
+
+/* Columns */
+.column-suspicious{ width: 10% }

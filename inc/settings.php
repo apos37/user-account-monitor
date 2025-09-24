@@ -167,6 +167,14 @@ class Settings {
                 'section'    => 'general',
                 'default'    => FALSE,
             ],
+            [
+                'key'        => 'columns',
+                'title'      => __( 'Additional Columns', 'user-account-monitor' ),
+                'comments'   => __( 'Enter user meta keys (separated by commas) that you would like to display in the Users admin list table.', 'user-account-monitor' ),
+                'field_type' => 'text',
+                'sanitize'   => 'sanitize_text_field',
+                'section'    => 'developer',
+            ],
         ];
 
         // Conditionally add auto-delete setting
@@ -220,7 +228,8 @@ class Settings {
         $sections = [
             [ 'general', __( 'General', 'user-account-monitor' ), '' ],
             [ 'checks', __( 'What do you want to check for?', 'user-account-monitor' ), '' ],
-            [ 'integrations', __( 'Integrations', 'user-account-monitor' ), '' ]
+            [ 'integrations', __( 'Integrations', 'user-account-monitor' ), '' ],
+            [ 'developer', __( 'Developer Settings', 'user-account-monitor' ), '' ],
         ];
 
         // Allow developers to customize sections

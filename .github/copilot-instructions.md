@@ -57,3 +57,6 @@ This is a WordPress plugin that detects and flags suspicious user registrations 
 
 ---
 If any section is unclear or missing, please provide feedback so instructions can be improved for future AI agents.
+
+# Instructions for AI Code Assistants
+- Do not generate patches without asking first. Always confirm with the user before making changes.

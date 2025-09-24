@@ -86,8 +86,6 @@ class Users {
         // User column
         add_filter( 'manage_users_columns', [ $this, 'user_column' ] );
         add_filter( 'manage_users-network_columns', [ $this, 'user_column' ] );
-        add_action( 'admin_head-users.php', [ $this, 'user_column_style' ] );
-        add_action( 'admin_head-users-network.php', [ $this, 'user_column_style' ] );
         add_action( 'manage_users_custom_column', [ $this, 'user_column_content' ], 10, 3 );
 
         // Scripts
@@ -151,56 +149,93 @@ class Users {
      * @return void
      */
     public function filter_users_list_query( $query ) {
-        if ( !is_admin() ) {
+        if ( ! is_admin() ) {
             return;
         }
 
-        // Only modify the main query on the users.php admin page.
-        if ( !$query instanceof \WP_User_Query ) {
+        if ( ! $query instanceof \WP_User_Query ) {
             return;
         }
 
         $screen = get_current_screen();
-        if ( !$screen || $screen->id !== 'users' ) {
+        if ( ! $screen || $screen->id !== 'users' ) {
             return;
         }
 
-        $filter = isset( $_GET[ $this->meta_key_suspicious ] ) ? sanitize_text_field( wp_unslash( $_GET[ $this->meta_key_suspicious ] ) ) : '';
-        $nonce  = isset( $_GET[ 'uamonitor_filter_nonce' ] ) ? sanitize_text_field( wp_unslash( $_GET[ 'uamonitor_filter_nonce' ] ) ) : '';
-
-        if ( $filter === '' || !wp_verify_nonce( $nonce, $this->nonce_filter ) ) {
-            return;
-        }
+        global $wpdb;
 
         $meta_query = [];
 
-        if ( $filter === 'cleared' ) {
-            $meta_query[] = [
-                'key'     => 'suspicious',
-                'value'   => 'cleared',
-                'compare' => '=',
-            ];
-        } elseif ( $filter === 'flagged' ) {
-            $meta_query[] = [
-                'key'     => 'suspicious',
-                'value'   => 'cleared',
-                'compare' => '!=',
-            ];
-        } elseif ( $filter === 'not_checked' ) {
-            $meta_query[] = [
-                'key'     => 'suspicious',
-                'compare' => 'NOT EXISTS',
-            ];
+        // Suspicious filter
+        $filter = isset( $_GET[ $this->meta_key_suspicious ] ) ? sanitize_text_field( wp_unslash( $_GET[ $this->meta_key_suspicious ] ) ) : '';
+        if ( $filter !== '' ) {
+            $nonce = isset( $_GET['uamonitor_filter_nonce'] ) ? sanitize_text_field( wp_unslash( $_GET['uamonitor_filter_nonce'] ) ) : '';
+            if ( ! wp_verify_nonce( $nonce, $this->nonce_filter ) ) {
+                return;
+            }
+
+            if ( $filter === 'cleared' ) {
+                $meta_query[] = [
+                    'key'     => 'suspicious',
+                    'value'   => 'cleared',
+                    'compare' => '=',
+                ];
+            } elseif ( $filter === 'flagged' ) {
+                $meta_query[] = [
+                    'key'     => 'suspicious',
+                    'value'   => 'cleared',
+                    'compare' => '!=',
+                ];
+            } elseif ( $filter === 'not_checked' ) {
+                $meta_query[] = [
+                    'key'     => 'suspicious',
+                    'compare' => 'NOT EXISTS',
+                ];
+            }
         }
 
-        // Merge with any existing meta_query
-        if ( !empty( $query->query_vars[ 'meta_query' ] ) ) {
-            $meta_query = array_merge( $query->query_vars[ 'meta_query' ], $meta_query );
+        // Search box
+        $search = '';
+        if ( ! empty( $query->query_vars['search'] ) ) {
+            $search = trim( $query->query_vars['search'], '*' );
         }
-        
-        $query->set( 'meta_query', $meta_query );
-    } // End filter_users_list_query
 
+        if ( $search !== '' ) {
+            $addt_columns = $this->get_addt_columns();
+            if ( ! empty( $addt_columns ) ) {
+                $meta_subqueries = [];
+                foreach ( $addt_columns as $column ) {
+                    $meta_key = esc_sql( $column['meta_key'] );
+                    $like     = esc_sql( $wpdb->esc_like( $search ) );
+                    $meta_subqueries[] = "ID IN (
+                        SELECT user_id FROM {$wpdb->usermeta}
+                        WHERE meta_key='{$meta_key}' AND meta_value LIKE '%{$like}%'
+                    )";
+                }
+
+                if ( ! empty( $meta_subqueries ) ) {
+                    $meta_query_sql = implode( ' OR ', $meta_subqueries );
+                    // Inject into WP_User_Query's SQL
+                    add_filter( 'pre_user_query', function( $uqi ) use ( $meta_query_sql ) {
+                        $uqi->query_where = str_replace(
+                            'WHERE 1=1 AND (',
+                            "WHERE 1=1 AND ({$meta_query_sql} OR ",
+                            $uqi->query_where
+                        );
+                    });
+                }
+            }
+        }
+
+        // Merge with existing meta_query
+        if ( ! empty( $meta_query ) ) {
+            if ( ! empty( $query->query_vars['meta_query'] ) ) {
+                $meta_query = array_merge( $query->query_vars['meta_query'], $meta_query );
+            }
+            $query->set( 'meta_query', $meta_query );
+        }
+    } // End filter_users_list_query()
+    
 
     /**
      * Add clear action link
@@ -238,25 +273,50 @@ class Users {
 
 
     /**
+     * Get additional columns from settings
+     *
+     * @return array
+     */
+    private function get_addt_columns() {
+        $columns = [];
+        $addt_columns = sanitize_text_field( get_option( 'uamonitor_columns' ) );
+        if ( $addt_columns ) {
+            $addt_columns = array_map( 'trim', explode( ',', $addt_columns ) );
+            foreach ( $addt_columns as $addt_column ) {
+                $column_id = 'uamonitor_' . $addt_column;
+                if ( ! array_key_exists( $column_id, $columns ) ) {
+                    $columns[ $column_id ] = [
+                        'meta_key' => $addt_column,
+                        'title'    => ucwords( str_replace( [ '_', '-' ], ' ', $addt_column ) )
+                    ];
+                }
+            }
+        }
+        return $columns;
+    } // End get_addt_columns()
+
+
+    /**
      * Add the user column
      *
      * @param array $columns
      * @return array
      */
     public function user_column( $columns ) {
+        // Custom columns
+        $addt_columns = $this->get_addt_columns();
+        if ( ! empty( $addt_columns ) ) {
+            foreach ( $addt_columns as $column_id => $data ) {
+                if ( ! array_key_exists( $column_id, $columns ) ) {
+                    $columns[ $column_id ] = esc_html( $data[ 'title' ] );
+                }
+            }
+        }
+
+        // Our column
         $columns[ 'suspicious' ] = __( 'Suspicious', 'user-account-monitor' );
         return $columns;
     } // End user_column()
-
-
-    /**
-     * Column width
-     *
-     * @return void
-     */
-    public function user_column_style() {
-        echo '<style>.column-suspicious{width: 10%}</style>';
-    } // End users_column_style()
 
 
     /**
@@ -268,7 +328,14 @@ class Users {
      * @return string
      */
     public function user_column_content( $value, $column_name, $user_id ) {
-        if ( $column_name == 'suspicious' ) {
+        // Custom columns
+        $addt_columns = $this->get_addt_columns();
+        if ( ! empty( $addt_columns ) && array_key_exists( $column_name, $addt_columns ) ) {
+            $meta_value = filter_var( get_user_meta( $user_id, $addt_columns[ $column_name ][ 'meta_key' ], true ), FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+            return esc_html( $meta_value );
+
+        // Our column
+        } elseif ( $column_name == 'suspicious' ) {
             $suspicious = (new IndividualUser())->check( $user_id, true );
 
             // They have been cleared - not suspicious
