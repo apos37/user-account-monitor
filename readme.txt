@@ -65,6 +65,7 @@ We recommend using our [website support forum](https://pluginrx.com/support/plug
 
 == Changelog ==
 = 1.0.7 =
+* Update: Added option to add fields for meta keys to user edit profile page.
 * Update: Added bulk editing options.
 
 = 1.0.6 =

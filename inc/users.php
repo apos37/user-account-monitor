@@ -283,19 +283,30 @@ class Users {
      */
     private function get_addt_columns() {
         $columns = [];
-        $addt_columns = sanitize_text_field( get_option( 'uamonitor_columns' ) );
+        $addt_columns = get_option( 'uamonitor_columns', '' );
+
         if ( $addt_columns ) {
             $addt_columns = array_map( 'trim', explode( ',', $addt_columns ) );
+
             foreach ( $addt_columns as $addt_column ) {
-                $column_id = 'uamonitor_' . $addt_column;
+                if ( preg_match( '/^([^\(]+)\((.+)\)$/', $addt_column, $matches ) ) {
+                    $meta_key = sanitize_key( trim( $matches[1] ) );
+                    $title = sanitize_text_field( trim( $matches[2] ) );
+                } else {
+                    $meta_key = sanitize_key( $addt_column );
+                    $title = ucwords( str_replace( [ '_', '-' ], ' ', $addt_column ) );
+                }
+
+                $column_id = 'uamonitor_' . $meta_key;
                 if ( ! array_key_exists( $column_id, $columns ) ) {
                     $columns[ $column_id ] = [
-                        'meta_key' => $addt_column,
-                        'title'    => ucwords( str_replace( [ '_', '-' ], ' ', $addt_column ) )
+                        'meta_key' => $meta_key,
+                        'title'    => $title,
                     ];
                 }
             }
         }
+
         return $columns;
     } // End get_addt_columns()
 

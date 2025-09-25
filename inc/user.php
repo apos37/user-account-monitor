@@ -84,6 +84,12 @@ class IndividualUser {
         add_action( 'wp_ajax_'.$this->ajax_key_scan, [ $this, 'ajax_scan' ] );
         add_action( 'wp_ajax_'.$this->ajax_key_clear, [ $this, 'ajax_clear' ] );
 
+        // Custom profile fields
+        add_action( 'show_user_profile', [ $this, 'add_user_profile_fields' ] );
+        add_action( 'edit_user_profile', [ $this, 'add_user_profile_fields' ] );
+        add_action( 'personal_options_update', [ $this, 'save_user_profile_fields' ] );
+        add_action( 'edit_user_profile_update', [ $this, 'save_user_profile_fields' ] );
+
     } // End init()
 
 
@@ -316,5 +322,90 @@ class IndividualUser {
         // Return error
         wp_send_json_error( [ 'msg' => 'No user ID found.' ] );
     } // End ajax_clear()
+
+
+    /**
+     * Add custom user meta fields based on uamonitor_profile_fields option
+     *
+     * @param WP_User $user
+     * @return void
+     */
+    public function add_user_profile_fields( $user ) {
+        $fields_option = get_option( 'uamonitor_profile_fields', '' );
+        if ( empty( $fields_option ) ) {
+            return;
+        }
+
+        $fields = array_map( 'trim', explode( ',', $fields_option ) );
+
+        printf(
+            '<h2>%1$s</h2>',
+            esc_html( __( 'Meta Keys', 'user-account-monitor' ) )
+        );
+
+        foreach ( $fields as $field ) {
+            if ( preg_match( '/^([^\(]+)\((.+)\)$/', $field, $matches ) ) {
+                $meta_key = sanitize_key( trim( $matches[1] ) );
+                $label = sanitize_text_field( trim( $matches[2] ) );
+            } else {
+                $meta_key = sanitize_key( $field );
+                $label = sanitize_text_field( $field );
+            }
+
+            $value = get_user_meta( $user->ID, $meta_key, true );
+            $value = is_array( $value ) ? array_map( 'esc_attr', $value ) : esc_attr( $value );
+
+            printf(
+                '<table class="form-table">
+                    <tr>
+                        <th><label for="%1$s">%2$s</label></th>
+                        <td><input type="text" name="%1$s" id="%1$s" value="%3$s" class="regular-text" /></td>
+                    </tr>
+                </table>',
+                esc_attr( $meta_key ),
+                esc_html( $label ),
+                is_array( $value ) ? implode( ', ', $value ) : $value
+            );
+        }
+    } // End add_user_profile_fields()
+
+
+    /**
+     * Save the user meta fields
+     *
+     * @param int $user_id
+     * @return void
+     */
+    public function save_user_profile_fields( $user_id ) {
+        if ( ! current_user_can( 'edit_user', $user_id ) ) {
+            return;
+        }
+
+        $fields_option = get_option( 'uamonitor_profile_fields', '' );
+
+        if ( empty( $fields_option ) ) {
+            return;
+        }
+
+        $fields = array_map( 'trim', explode( ',', $fields_option ) );
+
+        foreach ( $fields as $field ) {
+            if ( preg_match( '/^([^\(]+)\((.+)\)$/', $field, $matches ) ) {
+                $meta_key = sanitize_key( trim( $matches[1] ) );
+            } else {
+                $meta_key = sanitize_key( $field );
+            }
+
+            if ( isset( $_POST[ $meta_key ] ) ) {
+                if ( is_array( $_POST[ $meta_key ] ) ) {
+                    $value = array_map( 'sanitize_text_field', $_POST[ $meta_key ] );
+                } else {
+                    $value = sanitize_text_field( wp_unslash( $_POST[ $meta_key ] ) );
+                }
+                update_user_meta( $user_id, $meta_key, $value );
+            }
+        }
+    } // End save_user_profile_fields()
+
 
 }

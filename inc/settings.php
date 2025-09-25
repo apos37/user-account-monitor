@@ -175,6 +175,14 @@ class Settings {
                 'sanitize'   => 'sanitize_text_field',
                 'section'    => 'developer',
             ],
+            [
+                'key'        => 'profile_fields',
+                'title'      => __( 'Edit Profile Fields', 'user-account-monitor' ),
+                'comments'   => __( 'Enter user meta keys (separated by commas) that you would like to edit on the Users admin profile page.', 'user-account-monitor' ),
+                'field_type' => 'textarea',
+                'sanitize'   => 'sanitize_text_field',
+                'section'    => 'developer',
+            ],
         ];
 
         // Conditionally add auto-delete setting
@@ -337,6 +345,36 @@ class Settings {
             wp_kses_post( $comments )
         );
     } // settings_field_text()
+
+
+    /**
+     * Custom callback function to print textarea field
+     *
+     * @param array $args
+     * @return void
+     */
+    public function settings_field_textarea( $args ) {
+        $width = isset( $args[ 'width' ] ) ? $args[ 'width' ] : '43rem';
+        $height = isset( $args[ 'height' ] ) ? $args[ 'height' ] : '10rem';
+        $default = isset( $args[ 'default' ] ) ? $args[ 'default' ] : '';
+        $value = get_option( $args[ 'name' ], $default );
+        
+        if ( isset( $args[ 'revert' ] ) && $args[ 'revert' ] === true && trim( $value ) === '' ) {
+            $value = $default;
+        }
+        
+        $comments = isset( $args[ 'comments' ] ) ? '<br><p class="description">' . $args[ 'comments' ] . '</p>' : '';
+        
+        printf(
+            '<textarea id="%s" name="%s" style="width: %s; height: %s;">%s</textarea>%s',
+            esc_attr( $args[ 'id' ] ),
+            esc_attr( $args[ 'name' ] ),
+            esc_attr( $width ),
+            esc_attr( $height ),
+            esc_textarea( $value ),
+            wp_kses_post( $comments )
+        );
+    } // settings_field_textarea()
 
 
     /**
