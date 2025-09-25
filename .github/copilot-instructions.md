@@ -60,3 +60,4 @@ If any section is unclear or missing, please provide feedback so instructions ca
 
 # Instructions for AI Code Assistants
 - Do not generate patches without asking first. Always confirm with the user before making changes.
+- Please add spaces inside parenthesis and brackets.

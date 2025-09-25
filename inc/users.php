@@ -88,6 +88,10 @@ class Users {
         add_filter( 'manage_users-network_columns', [ $this, 'user_column' ] );
         add_action( 'manage_users_custom_column', [ $this, 'user_column_content' ], 10, 3 );
 
+        // Bulk edit
+        add_filter( 'bulk_actions-users', [ $this, 'register_bulk_actions' ] );
+        add_filter( 'handle_bulk_actions-users', [ $this, 'process_bulk_actions' ], 10, 3 );
+
         // Scripts
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 
@@ -358,6 +362,51 @@ class Users {
             }
         }
     } // End column_content()
+
+
+    /**
+     * Register bulk actions
+     *
+     * @param array $bulk_actions
+     * @return array
+     */
+    public function register_bulk_actions( $bulk_actions ) {
+        $bulk_actions[ 'mark_suspicious' ] = __( 'Mark Suspicious', 'user-account-monitor' );
+        $bulk_actions[ 'mark_not_suspicious' ] = __( 'Mark Not Suspicious', 'user-account-monitor' );
+        $bulk_actions[ 'mark_unchecked_suspicious' ] = __( 'Mark Unchecked for Suspicions', 'user-account-monitor' );
+        return $bulk_actions;
+    } // End register_bulk_actions()
+
+
+    /**
+     * Process bulk actions
+     *
+     * @param string $redirect_to
+     * @param string $action
+     * @param array $user_ids
+     * @return string
+     */
+    public function process_bulk_actions( $redirect_to, $action, $user_ids ) {
+        if ( empty( $user_ids ) || ! is_array( $user_ids ) ) {
+            return $redirect_to;
+        }
+
+        foreach ( $user_ids as $user_id ) {
+            switch ( $action ) {
+                case 'mark_suspicious':
+                    update_user_meta( $user_id, $this->meta_key_suspicious, [ 'admin_flag' ] );
+                    break;
+                case 'mark_not_suspicious':
+                    update_user_meta( $user_id, $this->meta_key_suspicious, 'cleared' );
+                    break;
+                case 'mark_unchecked_suspicious':
+                    delete_user_meta( $user_id, $this->meta_key_suspicious );
+                    break;
+            }
+        }
+
+        return $redirect_to;
+    } // End process_bulk_actions()
 
 
     /**
