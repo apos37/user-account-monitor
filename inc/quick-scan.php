@@ -108,7 +108,7 @@ class QuickScan {
                 </div>
                 <p id="uamonitor-progress-text" style="margin-top:8px;"></p>
             </div>
-            <br>,br>
+            <br><br>
         </div>
         <?php
     } // End scan_page()
