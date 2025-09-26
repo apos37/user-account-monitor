@@ -4,7 +4,7 @@ Tags: spam, user registration, fake users, bot detection, account flagging
 Requires at least: 5.9
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 1.0.7
+Stable tag: 1.0.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.txt
 
@@ -64,6 +64,9 @@ Yes. The plugin settings let you turn on or off individual detection checks such
 We recommend using our [website support forum](https://pluginrx.com/support/plugin/user-account-monitor/) as the primary method for requesting features and getting help. You can also reach out via our [Discord support server](https://discord.gg/3HnzNEJVnR) or the [WordPress.org support forum](https://wordpress.org/support/plugin/user-account-monitor/), but please note that WordPress.org doesn’t always notify us of new posts, so it’s not ideal for time-sensitive issues.
 
 == Changelog ==
+= 1.0.8 =
+* Fix: Gravity Forms integration not checking for which options were enabled and checked all of them anyway.
+
 = 1.0.7 =
 * Update: Added option to add fields for meta keys to user edit profile page.
 * Update: Added bulk editing options.

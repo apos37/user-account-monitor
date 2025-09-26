@@ -3,7 +3,7 @@
  * Plugin Name:         User Account Monitor
  * Plugin URI:          https://pluginrx.com/plugin/user-account-monitor/
  * Description:         Detect and flag fake user accounts based on suspicious input patterns.
- * Version:             1.0.7
+ * Version:             1.0.8
  * Requires at least:   5.9
  * Tested up to:        6.8
  * Requires PHP:        8.0

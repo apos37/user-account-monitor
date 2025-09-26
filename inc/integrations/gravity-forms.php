@@ -91,7 +91,7 @@ class GravityForms {
 
         foreach ( $forms as $form ) {
             $title = $form[ 'title' ];
-            if ( !$form[ 'is_active' ] ) {
+            if ( ! $form[ 'is_active' ] ) {
                 $title .= ' (' . __( 'Inactive', 'user-account-monitor' ) . ')';
             }
             $choices[ $form[ 'id' ] ] = $title;
@@ -129,7 +129,7 @@ class GravityForms {
 
         // Validate only specific field types
         $valid_types = [ 'name', 'email', 'text', 'textarea' ];
-        if ( !in_array( $field->type, $valid_types, true ) ) {
+        if ( ! in_array( $field->type, $valid_types, true ) ) {
             return $result;
         }
 
@@ -148,32 +148,32 @@ class GravityForms {
             }
 
             foreach ( $names as $name ) {
-                if ( $this->FLAGS->check_excessive_uppercase( $name ) ) {
+                if ( get_option( 'uamonitor_excessive_uppercase', true ) && $this->FLAGS->check_excessive_uppercase( $name ) ) {
                     $errors[] = 'Excessive uppercase letters';
                 }
-                if ( $this->FLAGS->check_no_vowels( $name ) ) {
+                if ( get_option( 'uamonitor_no_vowels', true ) && $this->FLAGS->check_no_vowels( $name ) ) {
                     $errors[] = 'No vowels';
                 }
-                if ( $this->FLAGS->check_consonant_cluster( $name ) ) {
+                if ( get_option( 'uamonitor_consonant_cluster', true ) && $this->FLAGS->check_consonant_cluster( $name ) ) {
                     $errors[] = 'Suspicious consonant clusters';
                 }
-                if ( $this->FLAGS->check_numbers( $name ) ) {
+                if ( get_option( 'uamonitor_numbers', true ) && $this->FLAGS->check_numbers( $name ) ) {
                     $errors[] = 'Contains numbers';
                 }
-                if ( $this->FLAGS->check_special_characters( $name ) ) {
+                if ( get_option( 'uamonitor_special_characters', true ) && $this->FLAGS->check_special_characters( $name ) ) {
                     $errors[] = 'Contains special characters';
                 }
-                if ( $this->FLAGS->check_spam_words( $name ) ) {
+                if ( get_option( 'uamonitor_spam_words', true ) && $this->FLAGS->check_spam_words( $name ) ) {
                     $errors[] = 'Contains spam words';
                 }
             }
 
-            if ( $field->type === 'name' && $this->FLAGS->check_similar_first_last_name( [
-                'first_name' => sanitize_text_field( rgar( $value, $field->id . '.3' ) ),
-                'last_name'  => sanitize_text_field( rgar( $value, $field->id . '.6' ) )
-            ] ) ) {
-                $errors[] = 'First and last names are too similar';
-            }
+            // if ( get_option( 'uamonitor_similar_first_last_name', true ) && $field->type === 'name' && $this->FLAGS->check_similar_first_last_name( [
+            //     'first_name' => sanitize_text_field( rgar( $value, $field->id . '.3' ) ),
+            //     'last_name'  => sanitize_text_field( rgar( $value, $field->id . '.6' ) )
+            // ] ) ) {
+            //     $errors[] = 'First and last names are too similar';
+            // }
 
             $errors = array_unique( $errors );
 
@@ -195,16 +195,16 @@ class GravityForms {
             $errors = [];
 
             // Email-specific checks
-            if ( $this->FLAGS->check_invalid_email_domain( $email_value ) ) {
+            if (  get_option( 'uamonitor_invalid_email_domain', true ) && $this->FLAGS->check_invalid_email_domain( $email_value ) ) {
                 $errors[] = 'Invalid domain';
             }
 
-            if ( $this->FLAGS->check_excessive_periods_email( $email_value ) ) {
+            if ( get_option( 'uamonitor_excessive_periods_email', true ) && $this->FLAGS->check_excessive_periods_email( $email_value ) ) {
                 $errors[] = 'Excessive periods';
             }
 
             // Username check if this is also the username field
-            if ( $is_username && $this->FLAGS->check_url_in_username( $email_value ) ) {
+            if ( get_option( 'uamonitor_url_in_username', true ) && $is_username && $this->FLAGS->check_url_in_username( $email_value ) ) {
                 $errors[] = 'Contains URL';
             }
 
@@ -220,7 +220,7 @@ class GravityForms {
         // Username field validation (text inputName=username that is not an email)
         if ( $field->type === 'text' && $is_username && !is_email( $value ) ) {
             $username = sanitize_text_field( $value );
-            if ( $this->FLAGS->check_url_in_username( $username ) ) {
+            if ( get_option( 'uamonitor_url_in_username', true ) && $this->FLAGS->check_url_in_username( $username ) ) {
                 $result[ 'is_valid' ] = false;
                 $result[ 'message' ] = 'Username contains a URL.';
             }
@@ -229,7 +229,7 @@ class GravityForms {
 
         // Description / textarea spam words check
         if ( $field->type === 'textarea' || $field->inputName === 'description' ) {
-            if ( $this->FLAGS->check_spam_words( sanitize_text_field( $value ) ) ) {
+            if ( get_option( 'uamonitor_spam_words', true ) && $this->FLAGS->check_spam_words( sanitize_text_field( $value ) ) ) {
                 $result[ 'is_valid' ] = false;
                 $result[ 'message' ] = 'Description contains spam words.';
             }
