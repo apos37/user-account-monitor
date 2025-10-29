@@ -330,6 +330,9 @@ class Flags {
             }
         }
 
+        $ignore_names = [ 'schmidt', 'fehrnstrom', 'milcznski' ];
+        $ignore_names = apply_filters( 'uamonitor_consonant_cluster_ignore_list', $ignore_names );
+
         foreach ( $names as $index => $name ) {
             if ( !$name ) {
                 continue;
@@ -341,7 +344,14 @@ class Flags {
                 continue;
             }
 
-            $pattern = apply_filters( 'uamonitor_consonant_cluster_pattern', '/[bcdfghjklmnpqrstvwxzBCDFGHJKLMNPQRSTVWXZ]{6,}/', $field, $user_or_name );
+            $lower_name = strtolower( $name );
+            foreach ( $ignore_names as $ignore ) {
+                if ( strpos( $lower_name, $ignore ) !== false ) {
+                    continue 2;
+                }
+            }
+
+            $pattern = apply_filters( 'uamonitor_consonant_cluster_pattern', '/[bcdfghjklmnpqrstvwxz]{6,}/i', $field, $user_or_name );
 
             if ( preg_match( $pattern, $name ) ) {
                 return true;
@@ -413,13 +423,13 @@ class Flags {
         }
 
         foreach ( $names as $index => $name ) {
-            if ( !$name ) {
+            if ( ! $name ) {
                 continue;
             }
 
             $field = is_string( $user_or_name ) ? 'string' : $this->names_to_scan[ $index ];
 
-            $default_name_pattern  = '/[^\p{L}\,\.\'\-\s]/u';
+            $default_name_pattern = '/(?!\b(?:\([A-Za-z]+\)|"[A-Za-z]+")\b)[^\p{L}\,\.\'\-\s\(\)"]/u';
             $default_email_pattern = '/[^a-zA-Z0-9@\.\-\_\+]/';
 
             $pattern = ( $field === 'display_name' && is_email( $name ) )
@@ -460,6 +470,13 @@ class Flags {
         }
 
         if ( strlen( $first ) === 1 || strlen( $last ) === 1 ) {
+            return false;
+        }
+
+        $ignore_names = [ 'ana', 'ann', 'anne', 'john', 'lee', 'li', 'bri', 'niel', 'neil', 'jo', 'sam', 'ian', 'kim', 'raj', 'kai', 'eva', 'mia', 'jay' ];
+        $ignore_names = apply_filters( 'uamonitor_similar_name_ignore_list', $ignore_names );
+
+        if ( in_array( $first, $ignore_names, true ) || in_array( $last, $ignore_names, true ) ) {
             return false;
         }
 
@@ -677,7 +694,7 @@ class Flags {
             'act now', 'save big', 'don’t miss out', 'sign up', 'join now',
 
             // Financial
-            'cash', 'money back', '100% free', 'guaranteed', 'no risk', 'risk-free', 'winner',
+            'cash', 'money back', '100% free', 'guaranteed', 'no risk', 'risk-free', 
             'earn', 'income', 'double your', 'investment', 'profit', 'easy money',
             'work from home', 'be your own boss',
 
@@ -690,7 +707,7 @@ class Flags {
             'you’ve been selected', 'exclusive deal', 'you’re a winner',
 
             // Health/medications
-            'weight loss', 'miracle', 'cure', 'anti-aging', 'treatment', 'pain relief',
+            'weight loss', 'cure', 'anti-aging', 'treatment', 'pain relief',
             'no prescription', 'pharmacy', 'viagra', 'levitra', 'cialis',
 
             // Scam/phishing indicators
