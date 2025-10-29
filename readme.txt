@@ -65,8 +65,9 @@ We recommend using our [website support forum](https://pluginrx.com/support/plug
 
 == Changelog ==
 = 1.0.9 =
+* Tweak: Removed "miracle" and "winner" from spam words since they are also actual names.
 * Update: Similar names flag now has an ignore list with some common names added; new filter/hook added.
-* Update: Special characters flag now allows wrapping parenthesis and double quotation marks for nicknames; new filter/hook added.
+* Update: Special characters flag now allows wrapping parenthesis and double quotation marks for nicknames.
 * Update: Constant cluster flag now has an ignore list with a few common names added; new filter/hook added.
 
 = 1.0.8 =

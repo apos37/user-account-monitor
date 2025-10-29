@@ -343,6 +343,8 @@ class IndividualUser {
             esc_html( __( 'Meta Keys', 'user-account-monitor' ) )
         );
 
+        wp_nonce_field( 'uamonitor_profile_update', 'uamonitor_profile_nonce' );
+
         foreach ( $fields as $field ) {
             if ( preg_match( '/^([^\(]+)\((.+)\)$/', $field, $matches ) ) {
                 $meta_key = sanitize_key( trim( $matches[1] ) );
@@ -364,7 +366,7 @@ class IndividualUser {
                 </table>',
                 esc_attr( $meta_key ),
                 esc_html( $label ),
-                is_array( $value ) ? implode( ', ', $value ) : $value
+                esc_html( is_array( $value ) ? implode( ', ', $value ) : $value )
             );
         }
     } // End add_user_profile_fields()
@@ -381,8 +383,12 @@ class IndividualUser {
             return;
         }
 
-        $fields_option = get_option( 'uamonitor_profile_fields', '' );
+        // Verify nonce for security.
+        if ( ! isset( $_POST[ 'uamonitor_profile_nonce' ] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ 'uamonitor_profile_nonce' ] ) ), 'uamonitor_profile_update' ) ) {
+            return;
+        }
 
+        $fields_option = get_option( 'uamonitor_profile_fields', '' );
         if ( empty( $fields_option ) ) {
             return;
         }
@@ -397,11 +403,14 @@ class IndividualUser {
             }
 
             if ( isset( $_POST[ $meta_key ] ) ) {
-                if ( is_array( $_POST[ $meta_key ] ) ) {
-                    $value = array_map( 'sanitize_text_field', $_POST[ $meta_key ] );
+                $raw_value = wp_unslash( $_POST[ $meta_key ] ); // phpcs:ignore 
+
+                if ( is_array( $raw_value ) ) {
+                    $value = array_map( 'sanitize_text_field', $raw_value );
                 } else {
-                    $value = sanitize_text_field( wp_unslash( $_POST[ $meta_key ] ) );
+                    $value = sanitize_text_field( $raw_value );
                 }
+
                 update_user_meta( $user_id, $meta_key, $value );
             }
         }

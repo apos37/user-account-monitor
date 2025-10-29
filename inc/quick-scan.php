@@ -124,9 +124,10 @@ class QuickScan {
         }
 
         global $wpdb;
-        $last_id   = isset( $_POST['last_id'] ) ? intval( $_POST['last_id'] ) : 0;
-        $batch     = isset( $_POST['batch'] ) ? intval( $_POST['batch'] ) : 100;
+        $last_id   = isset( $_POST[ 'last_id' ] ) ? intval( $_POST[ 'last_id' ] ) : 0;
+        $batch     = isset( $_POST[ 'batch' ] ) ? intval( $_POST[ 'batch' ] ) : 100;
 
+        // phpcs:ignore 
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT ID FROM {$wpdb->users} WHERE ID > %d ORDER BY ID ASC LIMIT %d",
             $last_id,

@@ -300,7 +300,7 @@ class Users {
                 $column_id = 'uamonitor_' . $meta_key;
                 if ( ! array_key_exists( $column_id, $columns ) ) {
                     $columns[ $column_id ] = [
-                        'meta_key' => $meta_key,
+                        'meta_key' => $meta_key, // phpcs:ignore
                         'title'    => $title,
                     ];
                 }
